@@ -36,6 +36,3 @@ services:
     volumes:
       - ./mongo3_data:/data/db
       - ./mongo3_config:/data/configdb
-
-  rabbitmq:
-    image: rabbitmq:management
