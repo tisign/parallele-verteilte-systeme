@@ -37,11 +37,11 @@ services:
       - ./mongo3_data:/data/db
       - ./mongo3_config:/data/configdb
 
-  rabbitmq:
-    image: rabbitmq:management
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    environment: 
-      RABBITMQ_DEFAULT_USER: stockmarket
-      RABBITMQ_DEFAULT_PASS: supersecret123
+#  rabbitmq:
+#    image: rabbitmq:management
+#    ports:
+#      - "15672:15672"
+#      - "5672:5672"
+#    environment: 
+#      RABBITMQ_DEFAULT_USER: stockmarket
+#      RABBITMQ_DEFAULT_PASS: supersecret123
