@@ -37,11 +37,28 @@ services:
       - ./mongo3_data:/data/db
       - ./mongo3_config:/data/configdb
 
+
+
 #  rabbitmq:
-#    image: rabbitmq:management
+#    image: rabbitmq:3.13.7-management
 #    ports:
-#      - "15672:15672"
-#      - "5672:5672"
-#    environment: 
+#      - 5672:5672
+#      - 15672:15672
+#    environment:
 #      RABBITMQ_DEFAULT_USER: stockmarket
-#      RABBITMQ_DEFAULT_PASS: supersecret123
+#      RABBITMQ_DEFAULT_PASS: 12345678
+
+#  rabbitmq-provider:
+#    build:
+#      context: ./rabbitmq-provider
+#      dockerfile: Provider-Dockerfile
+#    container_name: rabbitmq-provider
+#    restart: always
+#    environment:
+#      RABBITMQ_HOST: rabbitmq  
+#      RABBITMQ_PORT: 5672
+#      RABBITMQ_USER: stockmarket
+#      RABBITMQ_PASSWORD: 12345678
+#      RABBITMQ_QUEUE: test-queue
+#    depends_on:
+#      - rabbitmq
