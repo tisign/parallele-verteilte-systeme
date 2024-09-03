@@ -7,34 +7,14 @@ services:
     env_file:
       - rabbitmq.env
 
+  stock-publisher:
+    build:
+      context: ./stock-publisher
+      dockerfile: Dockerfile
+    container_name: stock-publisher
+    restart: always
+    environment:
+      RABBITMQ_URL: amqp://stockmarket:12345678@localhost:5672/
 
-  rabbitmq-provider:
-    build:
-      context: ./rabbitmq-provider
-      dockerfile: Provider-Dockerfile
-    container_name: rabbitmq-provider
-    restart: always
-    env_file:
-      - rabbitmq-subscriber-provider.env
-    depends_on:
-      - rabbitmq
-  rabbitmq-subscriber-1:
-    build:
-      context: ./rabbitmq-subscriber
-      dockerfile: Subscriber-Dockerfile
-    container_name: rabbitmq-subscriber-1
-    restart: always
-    env_file:
-      - rabbitmq-subscriber-provider.env
-    depends_on:
-      - rabbitmq
-  rabbitmq-subscriber-2:
-    build:
-      context: ./rabbitmq-subscriber
-      dockerfile: Subscriber-Dockerfile
-    container_name: rabbitmq-subscriber-2
-    restart: always
-    env_file:
-      - rabbitmq-subscriber-provider.env
     depends_on:
       - rabbitmq
