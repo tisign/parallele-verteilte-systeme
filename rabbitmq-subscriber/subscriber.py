@@ -12,7 +12,7 @@ parameters = pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port, c
 connection = pika.BlockingConnection(parameters)
 channel = connection.channel()
 
-channel.queue_declare(queue=queue_name)
+channel.queue_declare(queue=queue_name, durable=True)
 
 def callback(ch, method, properties, body):
     print(f"Received: {body.decode()}")
