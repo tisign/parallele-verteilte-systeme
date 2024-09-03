@@ -1,5 +1,6 @@
 services:
   mongo1:
+    container_name: mongo1
     image: mongo:7.0
     ports:
       - 27017:27017
@@ -17,6 +18,7 @@ services:
       - ./mongo1_config:/data/configdb
 
   mongo2:
+    container_name: mongo2
     image: mongo:7.0
     ports:
       - 27018:27018
@@ -27,6 +29,7 @@ services:
       - ./mongo2_data:/data/db
       - ./mongo2_config:/data/configdb
   mongo3:
+    container_name: mongo3
     image: mongo:7.0
     ports:
       - 27019:27019
@@ -37,28 +40,70 @@ services:
       - ./mongo3_data:/data/db
       - ./mongo3_config:/data/configdb
 
+  rabbitmq:
+    image: rabbitmq:3.13.7-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    env_file:
+      - rabbitmq.env
 
+  stock-publisher:
+    build:
+      context: ./stock-publisher
+      dockerfile: Dockerfile
+    container_name: stock-publisher
+    restart: always
+    environment:
+      RABBITMQ_URL: amqp://stockmarket:12345678@rabbitmq:5672/
 
-#  rabbitmq:
-#    image: rabbitmq:3.13.7-management
-#    ports:
-#      - 5672:5672
-#      - 15672:15672
-#    environment:
-#      RABBITMQ_DEFAULT_USER: stockmarket
-#      RABBITMQ_DEFAULT_PASS: 12345678
+    depends_on:
+      - rabbitmq
 
-#  rabbitmq-provider:
-#    build:
-#      context: ./rabbitmq-provider
-#      dockerfile: Provider-Dockerfile
-#    container_name: rabbitmq-provider
-#    restart: always
-#    environment:
-#      RABBITMQ_HOST: rabbitmq  
-#      RABBITMQ_PORT: 5672
-#      RABBITMQ_USER: stockmarket
-#      RABBITMQ_PASSWORD: 12345678
-#      RABBITMQ_QUEUE: test-queue
-#    depends_on:
-#      - rabbitmq
+  rabbitmq-subscriber-1:
+    build:
+      context: ./rabbitmq-subscriber
+      dockerfile: Dockerfile
+    container_name: rabbitmq-subscriber-1
+    restart: always
+    environment:
+      RABBITMQ_QUEUE: AAPL
+    env_file:
+      - rabbitmq-subscriber.env
+    depends_on:
+      - rabbitmq
+      - mongo1
+      - mongo2
+      - mongo3
+
+  rabbitmq-subscriber-2:
+    build:
+      context: ./rabbitmq-subscriber
+      dockerfile: Dockerfile
+    container_name: rabbitmq-subscriber-2
+    restart: always
+    environment:
+      RABBITMQ_QUEUE: MSFT
+    env_file:
+      - rabbitmq-subscriber.env
+    depends_on:
+      - rabbitmq
+      - mongo1
+      - mongo2
+      - mongo3
+  
+  rabbitmq-subscriber-3:
+    build:
+      context: ./rabbitmq-subscriber
+      dockerfile: Dockerfile
+    container_name: rabbitmq-subscriber-3
+    restart: always
+    environment:
+      RABBITMQ_QUEUE: TSLA
+    env_file:
+      - rabbitmq-subscriber.env
+    depends_on:
+      - rabbitmq
+      - mongo1
+      - mongo2
+      - mongo3
