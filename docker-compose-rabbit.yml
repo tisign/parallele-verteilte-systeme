@@ -14,7 +14,46 @@ services:
     container_name: stock-publisher
     restart: always
     environment:
-      RABBITMQ_URL: amqp://stockmarket:12345678@localhost:5672/
+      RABBITMQ_URL: amqp://stockmarket:12345678@rabbitmq:5672/
 
+    depends_on:
+      - rabbitmq
+
+  rabbitmq-subscriber-1:
+    build:
+      context: ./rabbitmq-subscriber
+      dockerfile: Dockerfile
+    container_name: rabbitmq-subscriber-1
+    restart: always
+    environment:
+      RABBITMQ_QUEUE: AAPL
+    env_file:
+      - rabbitmq-subscriber.env
+    depends_on:
+      - rabbitmq
+
+  rabbitmq-subscriber-2:
+    build:
+      context: ./rabbitmq-subscriber
+      dockerfile: Dockerfile
+    container_name: rabbitmq-subscriber-2
+    restart: always
+    environment:
+      RABBITMQ_QUEUE: MSFT
+    env_file:
+      - rabbitmq-subscriber.env
+    depends_on:
+      - rabbitmq
+  
+  rabbitmq-subscriber-3:
+    build:
+      context: ./rabbitmq-subscriber
+      dockerfile: Dockerfile
+    container_name: rabbitmq-subscriber-3
+    restart: always
+    environment:
+      RABBITMQ_QUEUE: TSLA
+    env_file:
+      - rabbitmq-subscriber.env
     depends_on:
       - rabbitmq
