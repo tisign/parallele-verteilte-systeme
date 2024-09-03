@@ -76,7 +76,7 @@ func stockPublisher(conn *amqp.Connection, stock string) {
 				Body:        jsonBody,
 			})
 		failOnError(err, "Failed to publish a message")
-		log.Printf(" [x] Sent %s", jsonBody)
+		//log.Printf(" [x] Sent %s", jsonBody)
 	}
 }
 
@@ -90,7 +90,7 @@ func getEnvWithDefault(key, fallback string) string {
 }
 
 func main() {
-	rabbitMQConnectionString := getEnvWithDefault("RABBITMQ_URL", "amqp://stockmarket:supersecret123@localhost:5672/")
+	rabbitMQConnectionString := getEnvWithDefault("RABBITMQ_URL", "amqp://stockmarket:12345678@localhost:5672/")
 
 	conn, err := amqp.Dial(rabbitMQConnectionString)
 

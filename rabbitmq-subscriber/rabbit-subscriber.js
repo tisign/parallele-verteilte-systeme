@@ -7,9 +7,11 @@ const rabbitmqUser = process.env.RABBITMQ_USER || 'stockmarket';
 const rabbitmqPassword = process.env.RABBITMQ_PASSWORD || 'supersecret123';
 const queueName = process.env.RABBITMQ_QUEUE || 'default_queue';
 
+const buyMessages = [];
+const sellMessages = [];
+
 async function receiveMessage() {
     try {
-        // Verbindung zu RabbitMQ herstellen
         const connection = await amqp.connect({
             protocol: 'amqp',
             hostname: rabbitmqHost,
@@ -19,26 +21,44 @@ async function receiveMessage() {
         });
 
         const channel = await connection.createChannel();
+        await channel.assertQueue(queueName, { durable: false });
 
-        // Queue deklarieren (wird erstellt, wenn sie nicht existiert)
-        await channel.assertQueue(queueName, {
-            durable: false
-        });
+
+        let totalMessages = 0;
 
         console.log(` [*] Waiting for messages in ${queueName}. To exit press CTRL+C`);
 
-        // Nachricht empfangen
         channel.consume(queueName, (msg) => {
             if (msg !== null) {
-                console.log(` [x] Received: ${msg.content.toString()}`);
-                // Nachricht bestätigen (acknowledge)
+                const content = JSON.parse(msg.content.toString());
+
+                if (content.eventType === 'buy') {
+                    buyMessages.push(content);
+                } else if (content.eventType === 'sell') {
+                    sellMessages.push(content);
+                }
+
+                totalMessages++;
+
+                if (totalMessages === 1000) {
+                    const averageBuyPrice = buyMessages.length > 0 ? buyMessages.reduce((acc, msg) => acc + msg.price, 0) / buyMessages.length : 0;
+                    const averageSellPrice = sellMessages.length > 0 ? sellMessages.reduce((acc, msg) => acc + msg.price, 0) / sellMessages.length : 0;
+
+                    console.log(` [x] Processed 1000 messages. Average buy price: ${averageBuyPrice}, Average sell price: ${averageSellPrice}`);
+
+                    // saveToMongoDB(averageBuyPrice, averageSellPrice, buyMessages.length, sellMessages.length);
+                    totalMessages = 0;
+                    buyMessages.length = 0;
+                    sellMessages.length = 0;
+                }
+
                 channel.ack(msg);
             }
         });
-
     } catch (error) {
         console.error('Error:', error);
     }
+
 }
 
 receiveMessage();
