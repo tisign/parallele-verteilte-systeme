@@ -4,9 +4,9 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
-    environment:
-      RABBITMQ_DEFAULT_USER: stockmarket
-      RABBITMQ_DEFAULT_PASS: 12345678
+    env_file:
+      - rabbitmq.env
+
 
   rabbitmq-provider:
     build:
@@ -14,11 +14,27 @@ services:
       dockerfile: Provider-Dockerfile
     container_name: rabbitmq-provider
     restart: always
-    environment:
-      RABBITMQ_HOST: rabbitmq  
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USER: stockmarket
-      RABBITMQ_PASSWORD: 12345678
-      RABBITMQ_QUEUE: test-queue
+    env_file:
+      - rabbitmq-subscriber-provider.env
+    depends_on:
+      - rabbitmq
+  rabbitmq-subscriber-1:
+    build:
+      context: ./rabbitmq-subscriber
+      dockerfile: Subscriber-Dockerfile
+    container_name: rabbitmq-subscriber-1
+    restart: always
+    env_file:
+      - rabbitmq-subscriber-provider.env
+    depends_on:
+      - rabbitmq
+  rabbitmq-subscriber-2:
+    build:
+      context: ./rabbitmq-subscriber
+      dockerfile: Subscriber-Dockerfile
+    container_name: rabbitmq-subscriber-2
+    restart: always
+    env_file:
+      - rabbitmq-subscriber-provider.env
     depends_on:
       - rabbitmq
