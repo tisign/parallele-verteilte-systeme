@@ -107,3 +107,19 @@ services:
       - mongo1
       - mongo2
       - mongo3
+
+  frontend:
+    build:
+      context: ./stock-liveview
+      dockerfile: Dockerfile
+    container_name: stock-liveview
+    restart: always
+    ports:
+      - "3000:3000" 
+    environment:
+      MONGODB_URL: "mongodb://mongo1:27017, mongo2:27018, mongo3:27019/?replicaSet=rs0"
+    depends_on:
+      - rabbitmq
+      - mongo1
+      - mongo2
+      - mongo3
