@@ -56,7 +56,6 @@ services:
     restart: always
     environment:
       RABBITMQ_URL: amqp://stockmarket:12345678@rabbitmq:5672/
-
     depends_on:
       - rabbitmq
 

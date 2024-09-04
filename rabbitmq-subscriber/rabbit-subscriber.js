@@ -17,7 +17,7 @@ const sellMessages = [];
 async function receiveMessage() {
     let client;
     try {
-        client = new MongoClient(mongodbUri);
+        client = new MongoClient(mongodbUri); //check timeout
         await client.connect();
         const database = client.db(mongodbDatabase);
         const collection = database.collection(mongodbCollection);
@@ -68,8 +68,9 @@ async function receiveMessage() {
                 channel.ack(msg);
             }
         });
-    } catch (error) {
-        console.error('Error:', error);
+    } catch (e) {
+        console.error('Error:', e);
+        exit(1);
     }
 
 }

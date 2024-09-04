@@ -16,6 +16,7 @@ func failOnError(err error, msg string) {
 	if err != nil {
 		log.Fatalf("%s: %s", msg, err)
 	}
+	os.Exit(1);
 }
 
 // randomPrice generates a random price between $50 and $550
@@ -90,7 +91,7 @@ func getEnvWithDefault(key, fallback string) string {
 }
 
 func main() {
-	rabbitMQConnectionString := getEnvWithDefault("RABBITMQ_URL", "amqp://stockmarket:12345678@localhost:5672/")
+	rabbitMQConnectionString := getEnvWithDefault("RABBITMQ_URL", "amqp://stockmarket:12345678@rabbitmq:5672/")
 
 	conn, err := amqp.Dial(rabbitMQConnectionString)
 

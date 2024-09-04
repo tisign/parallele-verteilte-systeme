@@ -28,7 +28,6 @@ const getLatestPrices = async () => {
   const client = getMongoClient();
   const dbName = process.env.MONGODB_DB || "stockdb";
 
-  // List the collection names manually or fetch them dynamically
   const collections = ['AAPL', 'TSLA', 'MSFT'];
   const latestPrices = [];
   console.log("Fetching latest prices for", collections);
@@ -52,7 +51,6 @@ const getLatestPrices = async () => {
     }
   }
 
-  // Sort by company name
   latestPrices.sort((a, b) => a.company.localeCompare(b.company));
   return latestPrices;
 };
