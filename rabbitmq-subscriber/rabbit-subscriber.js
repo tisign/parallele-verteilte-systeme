@@ -8,7 +8,7 @@ const rabbitmqPassword = process.env.RABBITMQ_PASSWORD || 'supersecret123';
 const queueName = process.env.RABBITMQ_QUEUE || 'default_queue';
 
 const mongodbUri = process.env.MONGODB_URI || 'mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=rs0';
-const mongodbDatabase = process.env.MONGODB_DATABASE || 'stock-db';
+const mongodbDatabase = process.env.MONGODB_DATABASE || 'stockdb';
 const mongodbCollection = process.env.RABBITMQ_QUEUE || 'UNASSIGNED';
 
 const buyMessages = [];

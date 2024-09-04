@@ -10,8 +10,10 @@ const initializeWebsocketServer = (server) => {
 };
 
 const broadcastPrices = async () => {
+  console.log("Broadcasting prices to", sockets.length, "sockets");
   if (sockets.length === 0) return;
   const prices = await getLatestPrices();
+  console.log("Latest prices:", prices);
   if (prices.length === 0) return;
   sockets.forEach((socket) => sendPrices(socket, prices));
 };
@@ -24,28 +26,35 @@ const onConnection = async (ws) => {
 
 const getLatestPrices = async () => {
   const client = getMongoClient();
-  const dbName = process.env.MONGODB_DB || "stockmarket";
-  const collectionName = process.env.MONGODB_COLLECTION || "stocks";
-  const result = await client
-    .db(dbName)
-    .collection(collectionName)
-    .aggregate([
-      {
-        $sort: {
-          _id: -1,
-        },
-      },
-      {
-        $group: {
-          _id: "$company",
-          latestEntry: { $first: "$$ROOT" },
-        },
-      },
-    ])
-    .toArray();
-  const companies = result.map((entry) => entry.latestEntry);
-  companies.sort((a, b) => a.company.localeCompare(b.company));
-  return companies;
+  const dbName = process.env.MONGODB_DB || "stockdb";
+
+  // List the collection names manually or fetch them dynamically
+  const collections = ['AAPL', 'TSLA', 'MSFT'];
+  const latestPrices = [];
+  console.log("Fetching latest prices for", collections);
+  for (const collectionName of collections) {
+    const result = await client
+      .db(dbName)
+      .collection(collectionName)
+      .find({})
+      .sort({ timestamp: -1 })
+      .limit(1)
+      .toArray();
+    console.log("Latest entry:", result);
+    if (result.length > 0) {
+      const latestEntry = result[0];
+      latestPrices.push({
+        company: collectionName, 
+        avgBuyPrice: latestEntry.averageBuyPrice,
+        avgSellPrice: latestEntry.averageSellPrice,
+        timestamp: latestEntry.timestamp,
+      });
+    }
+  }
+
+  // Sort by company name
+  latestPrices.sort((a, b) => a.company.localeCompare(b.company));
+  return latestPrices;
 };
 
 const sendPrices = async (ws, prices) => {

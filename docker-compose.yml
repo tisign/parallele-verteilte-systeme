@@ -118,6 +118,7 @@ services:
     restart: always
     environment:
       MONGODB_URL: mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0
+      MONGODB_DB: stockdb
     depends_on:
       - mongo1
       - mongo2

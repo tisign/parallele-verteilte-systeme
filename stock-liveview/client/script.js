@@ -4,8 +4,10 @@ const socket = new WebSocket(url.replace("http", "ws"));
 // Listen for WebSocket open event
 socket.addEventListener("open", (event) => {
   console.log("WebSocket connected.");
+  console.log(event);
 });
 
+let oldPrices = [];
 let prices = [];
 
 const renderPrices = () => {
@@ -14,6 +16,7 @@ const renderPrices = () => {
     return;
   }
   pricesDiv.innerHTML = "";
+
   prices.forEach((price) => {
     const div = document.createElement("div");
     div.classList.add(
@@ -22,19 +25,38 @@ const renderPrices = () => {
       "items-center",
       "justify-center",
       "rounded",
-      "size-32",
       "bg-slate-500"
     );
+
     const h2 = document.createElement("h2");
     h2.classList.add("text-2xl", "font-semibold");
     h2.innerText = price.company;
-    const span = document.createElement("span");
-    span.classList.add("text-xl");
-    span.innerText = price.avgPrice;
+
+    const spanBuy = document.createElement("span");
+    spanBuy.classList.add("text-xl");
+    spanBuy.innerText = `Avg Buy Price: ${price.avgBuyPrice.toFixed(2)}`;
+
+    const spanSell = document.createElement("span");
+    spanSell.classList.add("text-xl");
+    spanSell.innerText = `Avg Sell Price: ${price.avgSellPrice.toFixed(2)}`;
+
     div.appendChild(h2);
-    div.appendChild(span);
+    div.appendChild(spanBuy);
+    div.appendChild(spanSell);
     pricesDiv.appendChild(div);
+
+    if(oldPrices.length > 0) {
+      const oldPrice = oldPrices.find((oldPrice) => oldPrice.company === price.company);
+      if(oldPrice) {
+        if(price.avgBuyPrice > oldPrice.avgBuyPrice) {
+          div.classList.add("bg-green-500");
+        } else if(price.avgBuyPrice < oldPrice.avgBuyPrice) {
+          div.classList.add("bg-red-500");
+        }
+      }
+    }
   });
+    oldPrices = prices;
 };
 
 // Listen for messages from server
