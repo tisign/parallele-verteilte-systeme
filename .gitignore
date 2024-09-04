@@ -4,3 +4,4 @@ mongo2_data/
 mongo2_config/
 mongo3_data/
 mongo3_config/
+.DS_Store
