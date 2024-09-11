@@ -28,6 +28,7 @@ services:
     volumes:
       - ./mongo2_data:/data/db
       - ./mongo2_config:/data/configdb
+
   mongo3:
     container_name: mongo3
     image: mongo:7.0
@@ -90,7 +91,7 @@ services:
       - mongo1
       - mongo2
       - mongo3
-  
+
   rabbitmq-subscriber-3:
     build:
       context: ./rabbitmq-subscriber
@@ -107,13 +108,11 @@ services:
       - mongo2
       - mongo3
 
-  stock-liveview:
+  stock-liveview-1:
     build:
       context: ./stock-liveview
       dockerfile: Dockerfile
-    container_name: stock-liveview
-    ports:
-      - 3000:3000
+    container_name: stock-liveview-1
     restart: always
     environment:
       MONGODB_URL: mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0
@@ -122,3 +121,27 @@ services:
       - mongo1
       - mongo2
       - mongo3
+
+  stock-liveview-2:
+    build:
+      context: ./stock-liveview
+      dockerfile: Dockerfile
+    container_name: stock-liveview-2
+    restart: always
+    environment:
+      MONGODB_URL: mongodb://mongo1:27017,mongo2:27018,mongo3:27019/?replicaSet=rs0
+      MONGODB_DB: stockdb
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - stock-liveview-1
+      - stock-liveview-2

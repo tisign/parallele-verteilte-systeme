@@ -16,7 +16,6 @@ func failOnError(err error, msg string) {
 	if err != nil {
 		log.Fatalf("%s: %s", msg, err)
 	}
-	os.Exit(1);
 }
 
 // randomPrice generates a random price between $50 and $550

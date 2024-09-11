@@ -1,14 +1,42 @@
-const url = window.location.href;
-const socket = new WebSocket(url.replace("http", "ws"));
-
-// Listen for WebSocket open event
-socket.addEventListener("open", (event) => {
-  console.log("WebSocket connected.");
-  console.log(event);
-});
-
+const url = window.location.href.replace("http", "ws");
+let socket;
+const reconnectInterval = 5000;
+let reconnectTimeout;
+let reconnectCount = 0;
 let oldPrices = [];
 let prices = [];
+
+function connectWebSocket() {
+  socket = new WebSocket(url);
+
+  socket.addEventListener("open", (event) => {
+    console.log("WebSocket connected.");
+    console.log(event);
+    resetReconnect();
+  });
+
+  socket.addEventListener("message", (event) => {
+    const message = JSON.parse(event.data);
+    switch (message.type) {
+      case "prices":
+        prices = message.prices;
+        renderPrices();
+        break;
+      default:
+        console.error("Unknown message type:", message.type);
+    }
+  });
+
+  socket.addEventListener("close", (event) => {
+    console.log("WebSocket closed.");
+    startReconnecting();
+  });
+
+  socket.addEventListener("error", (event) => {
+    console.error("WebSocket error:", event);
+    startReconnecting();
+  });
+}
 
 const renderPrices = () => {
   const pricesDiv = document.getElementById("prices");
@@ -45,39 +73,47 @@ const renderPrices = () => {
     div.appendChild(spanSell);
     pricesDiv.appendChild(div);
 
-    if(oldPrices.length > 0) {
+    if (oldPrices.length > 0) {
       const oldPrice = oldPrices.find((oldPrice) => oldPrice.company === price.company);
-      if(oldPrice) {
-        if(price.avgBuyPrice > oldPrice.avgBuyPrice) {
+      if (oldPrice) {
+        if (price.avgBuyPrice > oldPrice.avgBuyPrice) {
           div.classList.add("bg-green-500");
-        } else if(price.avgBuyPrice < oldPrice.avgBuyPrice) {
+        } else if (price.avgBuyPrice < oldPrice.avgBuyPrice) {
           div.classList.add("bg-red-500");
         }
       }
     }
   });
-    oldPrices = prices;
+  oldPrices = prices;
 };
 
-// Listen for messages from server
-socket.addEventListener("message", (event) => {
-  const message = JSON.parse(event.data);
-  switch (message.type) {
-    case "prices":
-      prices = message.prices;
-      renderPrices();
-      break;
-    default:
-      console.error("Unknown message type:", message.type);
+function startReconnecting() {
+  const reconnectDiv = document.getElementById("reconnect-timer");
+  reconnectCount = 0;
+  reconnectDiv.innerText = "Reconnecting in 5 seconds...";
+  
+  reconnectTimeout = setInterval(() => {
+    reconnectCount++;
+    reconnectDiv.innerText = `Reconnecting in ${5 - reconnectCount} seconds...`;
+
+    if (reconnectCount === 5) {
+      clearInterval(reconnectTimeout);
+      reconnectWebSocket();
+    }
+  }, 1000);
+}
+
+function reconnectWebSocket() {
+  console.log("Attempting to reconnect...");
+  connectWebSocket();
+}
+
+function resetReconnect() {
+  const reconnectDiv = document.getElementById("reconnect-timer");
+  reconnectDiv.innerText = "";  
+  if (reconnectTimeout) {
+    clearInterval(reconnectTimeout);
   }
-});
+}
 
-// Listen for WebSocket close event
-socket.addEventListener("close", (event) => {
-  console.log("WebSocket closed.");
-});
-
-// Listen for WebSocket errors
-socket.addEventListener("error", (event) => {
-  console.error("WebSocket error:", event);
-});
+connectWebSocket();
