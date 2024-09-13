@@ -50,9 +50,7 @@ services:
       - rabbitmq.env
 
   stock-publisher:
-    build:
-      context: ./stock-publisher
-      dockerfile: Dockerfile
+    image: gendrin/stockpublisher:latest
     container_name: stock-publisher
     restart: always
     environment:
@@ -61,9 +59,7 @@ services:
       - rabbitmq
 
   rabbitmq-subscriber-1:
-    build:
-      context: ./rabbitmq-subscriber
-      dockerfile: Dockerfile
+    image: gendrin/rabbit-subscriber:latest
     container_name: rabbitmq-subscriber-1
     restart: always
     environment:
@@ -77,9 +73,7 @@ services:
       - mongo3
 
   rabbitmq-subscriber-2:
-    build:
-      context: ./rabbitmq-subscriber
-      dockerfile: Dockerfile
+    image: gendrin/rabbit-subscriber:latest
     container_name: rabbitmq-subscriber-2
     restart: always
     environment:
@@ -93,9 +87,7 @@ services:
       - mongo3
 
   rabbitmq-subscriber-3:
-    build:
-      context: ./rabbitmq-subscriber
-      dockerfile: Dockerfile
+    image: gendrin/rabbit-subscriber:latest
     container_name: rabbitmq-subscriber-3
     restart: always
     environment:
@@ -109,9 +101,7 @@ services:
       - mongo3
 
   stock-liveview-1:
-    build:
-      context: ./stock-liveview
-      dockerfile: Dockerfile
+    image: gendrin/stock-liveview:latest
     container_name: stock-liveview-1
     restart: always
     environment:
@@ -123,9 +113,7 @@ services:
       - mongo3
 
   stock-liveview-2:
-    build:
-      context: ./stock-liveview
-      dockerfile: Dockerfile
+    image: gendrin/stock-liveview:latest
     container_name: stock-liveview-2
     restart: always
     environment:
